@@ -4,19 +4,12 @@
 #include <math.h>
 #include <stdlib.h>
 #include "include/nn_from_scratch.h"
-<<<<<<< HEAD:nn_from_scratch/hardware/tester.c
-#include "model/simple_model.h"
-#include "data/eqcheck_data.h"
-#include "data/ft_data.h"
-#include "data/true_data.h"
-=======
 #include "model/model.h"
 #include "data/eqcheck_data.h"
 #include "data/ft_data.h"
 #include "data/true_data.h"
 
 /* calculates the loss for the 168 test samples*/
->>>>>>> overload_function_fix:nn_from_scratch/hardware/test_main.c
 void compare_true(Model *model)
 {
 
@@ -34,16 +27,9 @@ void compare_true(Model *model)
         }
         free(output);
     }
-<<<<<<< HEAD:nn_from_scratch/hardware/tester.c
-    printf("MSE error: %f \n", sum / FT_N_SAMPLES);
-}
-
-=======
     printf("MSE error: %f \n", sum / 168);
 }
-
 /* Checks that the model is outputting correct values (before any training) - used to test correctness of forward propagation */
->>>>>>> overload_function_fix:nn_from_scratch/hardware/test_main.c
 void eqcheck(Model *model)
 {
     printf("start eqcheck..\n");
@@ -102,27 +88,6 @@ void memory_tester(Model *model)
     printf("\n Completed memory test \n");
     return;
 }
-<<<<<<< HEAD:nn_from_scratch/hardware/tester.c
-
-// testing on simple data
-/*void test_simple(Model *model)
-{
-    float *input = simple_samples_x[0];
-    float *output = fc_model_predict(model, input);
-    printf("output: %f \n", output[0]);
-    fc_model_train(model, simple_samples_x, simple_samples_y);
-}*/
-int main()
-{
-    printf("starting.. \n");
-    Model *model = createAndSetModel(N_LAYERS, INPUT_SIZE, OUTPUT_SIZE, layers_size, layers_weights, layers_biases, layers_activation);
-    printf("Set model \n");
-    eqcheck(model);
-    compare_true(model);
-    memory_tester(model);
-    compare_true(model);
-=======
-/* Uses a training function over the training samples*/
 void trainer(Model *model)
 {
     int batches = 13;
@@ -151,6 +116,5 @@ int main()
     // perform memory testing
     printf("Starting memory tests... \n\n");
     memory_tester(model);
->>>>>>> overload_function_fix:nn_from_scratch/hardware/test_main.c
     return 0;
 }

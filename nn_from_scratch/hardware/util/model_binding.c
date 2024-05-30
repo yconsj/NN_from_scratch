@@ -1,10 +1,6 @@
 #include "model_binding.h"
 #include <stdlib.h>
 #include <stdio.h>
-/*
-    Model binding is excluded from memory tracking.
-
-*/
 /* binds values for a model to a Model */
 void setModel(Model *model, int n_layers, int input_size, int output_size, int *layers_size, float **layers_weights,
               float **layers_biases, enum ActivationType *layers_activation)

@@ -13,7 +13,6 @@ Gradients *allocate_gradients(Model *model)
     {
         gradients->biases[i] = (float *)calloc(model->layers_size[i], sizeof(float));
         gradients->net_inputs[i] = (float *)malloc(model->layers_size[i] * sizeof(float));
-        // size of weights:
         if (i == 0)
         {
             gradients->weights[i] = (float *)calloc(model->layers_size[i] * model->input_size, sizeof(float));
@@ -22,7 +21,6 @@ Gradients *allocate_gradients(Model *model)
         {
             gradients->weights[i] = (float *)calloc(model->layers_size[i] * model->layers_size[i - 1], sizeof(float));
         }
-        // neurons will be set when forward propagating
     }
 
     return gradients;

@@ -11,8 +11,8 @@ size_t total_allocated = 0;
 size_t total_freed = 0;
 size_t peak_allocated = 0;
 
-int num_blocks = 0;
-int occupied_blocks = 0;
+size_t num_blocks = 0;
+size_t occupied_blocks = 0;
 MemoryBlock *headBlock = NULL;
 MemoryBlock *currBlock = NULL;
 void *tracked_malloc(size_t size)
@@ -162,6 +162,6 @@ void print_memory()
     printf("Peak allocated memory: %zu bytes\n", peak_allocated);
     printf("Total allocated memory: %zu bytes\n", total_allocated);
     printf("Total freed memory: %zu bytes\n", total_freed);
-    printf("Peak blocks used: %d\n", num_blocks);
+    printf("Number of memory blocks used: %d\n", num_blocks);
     printf("Total blocks still being used: %d\n", occupied_blocks);
 }

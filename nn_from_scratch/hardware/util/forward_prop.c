@@ -61,3 +61,75 @@ float *fc_forward_prop_t(float *input, int input_size, float *output, int output
     }
     return output;
 }
+
+#define GENERATE_FC_FORWARD_PROP_VARIANTS(act, func, func_deriv)              \
+    float *fc_forward_prop_##act(float *input, float *weights, float *biases, \
+                                 int input_size, int output_size)             \
+    {                                                                         \
+        float *output = (float *)malloc(output_size * sizeof(float));         \
+        for (int i = 0; i < output_size; i++)                                 \
+        {                                                                     \
+            float sum = 0;                                                    \
+            for (int j = 0; j < input_size; j++)                              \
+            {                                                                 \
+                sum += input[j] * weights[i + j * output_size];               \
+            }                                                                 \
+            sum += biases[i];                                                 \
+            output[i] = func(sum);                                            \
+        }                                                                     \
+        return output;                                                        \
+    }
+
+#define GENERATE_FC_FORWARD_PROP_T_VARIANTS(act, func, func_deriv)                                                              \
+    float *fc_forward_prop_t_##act(float *input, int input_size, float *output, int output_size, float *weights, float *biases) \
+    {                                                                                                                           \
+        for (int i = 0; i < output_size; i++)                                                                                   \
+        {                                                                                                                       \
+            float sum = 0;                                                                                                      \
+            for (int j = 0; j < input_size; j++)                                                                                \
+            {                                                                                                                   \
+                sum += func(input[j]) * weights[i + j * output_size];                                                           \
+            }                                                                                                                   \
+            sum += biases[i];                                                                                                   \
+            output[i] = sum;                                                                                                    \
+        }                                                                                                                       \
+        return output;                                                                                                          \
+    }
+
+#define X(act, func, func_deriv) GENERATE_FC_FORWARD_PROP_VARIANTS(act, func, func_deriv)
+ACTIVATION_MACRO_LIST
+#undef X
+
+#define X(act, func, func_deriv) GENERATE_FC_FORWARD_PROP_T_VARIANTS(act, func, func_deriv)
+ACTIVATION_MACRO_LIST
+#undef X
+
+#define X(act, func, func_deriv) \
+    case act:                    \
+        return fc_forward_prop_##act;
+ForwardProp get_fc_forward_prop_variant(enum ActivationType activationType)
+{
+    switch (activationType)
+    {
+        ACTIVATION_MACRO_LIST
+    default:
+        printf("Error unknown activation type: defaulting to LINEAR\n");
+        return fc_forward_prop_LINEAR;
+    }
+}
+#undef X
+
+#define X(act, func, func_deriv) \
+    case act:                    \
+        return fc_forward_prop_t_##act;
+ForwardPropT get_fc_forward_prop_t_variant(enum ActivationType activationType)
+{
+    switch (activationType)
+    {
+        ACTIVATION_MACRO_LIST
+    default:
+        printf("Error unknown activation type: defaulting to LINEAR\n");
+        return fc_forward_prop_t_LINEAR;
+    }
+}
+#undef X

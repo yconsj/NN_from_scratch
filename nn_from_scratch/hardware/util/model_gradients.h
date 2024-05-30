@@ -9,7 +9,6 @@ typedef struct
     float **weights;
     float **biases;
     float **net_inputs;
-    uint8_t **deriv_activations;
 } Gradients;
 
 typedef struct

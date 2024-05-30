@@ -7,6 +7,7 @@
 #include "../util/loss_functions.h"
 #include "../util/config.h"
 #include <stdio.h>
+#include <math.h>
 /* Fully connected model functionality, does forward propagation,
     backpropagation with training to calculate gradients into gradient structure.
     @return nothing.
@@ -15,42 +16,51 @@ void fc_calc_gradients(Model *model, float *input, float *actual, Gradients *gra
 {
     float *curr_in = input;
     int size = model->input_size;
-    ActivationFunc func = &linear;             // input activation func is set to linear
-    ActivationFunc func_deriv = &linear_deriv; // input activation func is set to linear
+    ForwardPropT forward_prop = fc_forward_prop_t_LINEAR;
 
     // forward propagate through each layer
     for (int i = 0; i < model->n_layers; i++)
     {
 
-        curr_in = fc_forward_prop_t(curr_in, size, gradients->net_inputs[i],
-                                    model->layers_size[i], model->layers_weights[i], model->layers_biases[i], func);
+        curr_in = forward_prop(curr_in, size, gradients->net_inputs[i],
+                               model->layers_size[i], model->layers_weights[i], model->layers_biases[i]);
         size = model->layers_size[i];
-        func = get_activation_func(model->layers_activation[i]);
-        func_deriv = get_activation_func_deriv(model->layers_activation[i]);
+        forward_prop = get_fc_forward_prop_t_variant(model->layers_activation[i]);
     } // if not training return output (input from prev loop with activation func applied)
-    for (int i = 0; i < model->layers_size[model->n_layers - 1]; i++)
-    {
-        curr_in[i] = func(curr_in[i]);
-    }
-    // if training flag do backpropagate
-    // start getting error derivative and overwrite last layer net_inputs with gradients
-    float loss_deriv = MSE_derivative(curr_in, actual, model->layers_size[model->n_layers - 1]); // last layer size is output size
-    for (int i = 0; i < model->layers_size[model->n_layers - 1]; i++)
-    {
 
-        gradients->net_inputs[model->n_layers - 1][i] = loss_deriv * func_deriv(gradients->net_inputs[model->n_layers - 1][i]);
+    ActivationFunc func = get_activation_func(model->layers_activation[model->n_layers - 1]);
+
+    float *output = (float *)malloc(sizeof(float) * model->output_size);
+    for (int i = 0; i < model->output_size; i++)
+    {
+        output[i] = func(curr_in[i]);
+    }
+
+    // calculate loss derivative
+    float loss_deriv = MSE_derivative(curr_in, actual, model->output_size); // last layer size is output size
+    free(output);
+
+    func = get_activation_func_deriv(model->layers_activation[model->n_layers - 1]);
+
+    // calculate initial gradient
+    for (int i = 0; i < model->output_size; i++)
+    {
+        gradients->net_inputs[model->n_layers - 1][i] = loss_deriv * func(gradients->net_inputs[model->n_layers - 1][i]);
     }
     // perform backprop
+    BackProp back_prop;
+
     for (int i = model->n_layers - 1; i > 0; i--)
     {
-        fc_back_prop(gradients->net_inputs[i], gradients->net_inputs[i - 1], model->layers_weights[i],
-                     model->layers_size[i], model->layers_size[i - 1], get_activation_func(model->layers_activation[i - 1]), get_activation_func_deriv(model->layers_activation[i - 1]), gradients->weights[i], gradients->biases[i]);
+        back_prop = get_fc_back_prop_variant(model->layers_activation[i - 1]);
+        back_prop(gradients->net_inputs[i], gradients->net_inputs[i - 1], model->layers_weights[i],
+                  model->layers_size[i], model->layers_size[i - 1], gradients->weights[i], gradients->biases[i]);
     }
 
     // edge case for input to first layer
     curr_in = input;
-    fc_back_prop(gradients->net_inputs[0], curr_in, model->layers_weights[0],
-                 model->layers_size[0], model->input_size, linear, linear_deriv, gradients->weights[0], gradients->biases[0]);
+    fc_back_prop_LINEAR(gradients->net_inputs[0], curr_in, model->layers_weights[0],
+                        model->layers_size[0], model->input_size, gradients->weights[0], gradients->biases[0]);
     return;
 }
 
@@ -93,20 +103,18 @@ float *fc_model_predict(Model *model, float *input)
 {
 
     int size = model->input_size;
-    ActivationFunc func = get_activation_func(model->layers_activation[0]);
+    ForwardProp forward_prop = get_fc_forward_prop_variant(model->layers_activation[0]);
     // forward propagate through each layer
-    float *output = fc_forward_prop(input, model->layers_weights[0], model->layers_biases[0],
-                                    size, model->layers_size[0], func);
+    float *output = forward_prop(input, model->layers_weights[0], model->layers_biases[0],
+                                 size, model->layers_size[0]);
     input = output;
     size = model->layers_size[0];
-
     for (int i = 1; i < model->n_layers; i++)
     {
 
-        func = get_activation_func(model->layers_activation[i]);
-        output = fc_forward_prop(input, model->layers_weights[i], model->layers_biases[i],
-                                 size, model->layers_size[i], func);
-
+        forward_prop = get_fc_forward_prop_variant(model->layers_activation[i]);
+        output = forward_prop(input, model->layers_weights[i], model->layers_biases[i],
+                              size, model->layers_size[i]);
         free(input);
         input = output;
         size = model->layers_size[i];

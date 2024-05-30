@@ -2,23 +2,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* Activation functions */
-float relu(float x)
-{
-    return (x > 0) ? x : 0;
-}
 float linear(float x)
 {
     return x;
 }
-
-float relu_deriv(float x)
+float relu(float x)
 {
-    return (x > 0) ? 1 : 0;
+    return x > 0 ? x : 0;
 }
 float linear_deriv(__attribute__((unused)) float x)
 {
     return 1;
+}
+float relu_deriv(float x)
+{
+    return x > 0 ? 1 : 0;
 }
 
 ActivationFunc get_activation_func(enum ActivationType activationType)

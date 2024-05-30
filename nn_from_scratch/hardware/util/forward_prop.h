@@ -6,7 +6,6 @@ extern float *fc_forward_prop(float *input, float *layer_weights, float *layer_b
 
 extern float *fc_forward_prop_t(float *input, int input_size, float *output, int output_size, float *weights, float *biases, ActivationFunc activation_func);
 
-/* Generate activation function variants prototypes */
 typedef float *(*ForwardProp)(float *, float *, float *, int, int);
 typedef float *(*ForwardPropT)(float *, int, float *, int, float *, float *);
 ForwardProp get_fc_forward_prop_variant(enum ActivationType activationType);

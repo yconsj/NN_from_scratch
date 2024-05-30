@@ -11,6 +11,7 @@
     @param input_size: size of input
     @param net_inputs_size: size of net_inputs
     @param activation_func: activation function for the output neruons
+    @param activation_func_deriv: derivative activation function for the output neruons
     @param gradient_weights: pointer to gradient weights for the layer to be accumilated in
     @param gradient_biases: pointer to gradient biases for the layer to accumilated in
     @return nothing

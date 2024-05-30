@@ -26,7 +26,7 @@ void fc_calc_gradients(Model *model, float *input, float *actual, Gradients *gra
                                model->layers_size[i], model->layers_weights[i], model->layers_biases[i]);
         size = model->layers_size[i];
         forward_prop = get_fc_forward_prop_t_variant(model->layers_activation[i]);
-    } // if not training return output (input from prev loop with activation func applied)
+    }
 
     ActivationFunc func = get_activation_func(model->layers_activation[model->n_layers - 1]);
 
@@ -37,7 +37,7 @@ void fc_calc_gradients(Model *model, float *input, float *actual, Gradients *gra
     }
 
     // calculate loss derivative
-    float loss_deriv = MSE_derivative(curr_in, actual, model->output_size); // last layer size is output size
+    float loss_deriv = MSE_derivative(curr_in, actual, model->output_size);
     free(output);
 
     func = get_activation_func_deriv(model->layers_activation[model->n_layers - 1]);
